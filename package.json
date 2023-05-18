@@ -1,0 +1,53 @@
+{
+    "name": "agroconnect_backend",
+    "version": "1.0.0",
+    "description": "",
+    "main": "dist/app.js",
+    "scripts": {
+        "build": "npx tsc",
+        "start": "node dist/app.js",
+        "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/app.js\""
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@types/mongoose": "^5.11.97",
+        "cloudinary": "^1.36.1",
+        "cors": "^2.8.5",
+        "datauri": "^4.1.0",
+        "dotenv": "^16.0.3",
+        "express": "^4.18.2",
+        "express-validator": "^7.0.1",
+        "formidable": "^2.1.1",
+        "helmet": "^6.1.5",
+        "jsonwebtoken": "^9.0.0",
+        "mailtrap": "^3.1.1",
+        "mongodb": "^5.3.0",
+        "mongoose": "^7.0.4",
+        "multer": "^1.4.5-lts.1",
+        "node-cache": "^5.1.2",
+        "nodemailer": "^6.9.1",
+        "passport": "^0.6.0",
+        "passport-google-oauth20": "^2.0.0",
+        "passport-jwt": "^4.0.1",
+        "slugify": "^1.6.6",
+        "validator": "^13.9.0"
+    },
+    "devDependencies": {
+        "@types/cors": "^2.8.13",
+        "@types/express": "^4.17.17",
+        "@types/express-session": "^1.17.7",
+        "@types/multer": "^1.4.7",
+        "@types/node": "^18.15.13",
+        "@types/nodemailer": "^6.4.7",
+        "@types/passport": "^1.0.12",
+        "@types/passport-google-oauth20": "^2.0.11",
+        "@types/passport-jwt": "^3.0.8",
+        "@types/passport-local": "^1.0.35",
+        "@types/validator": "^13.7.15",
+        "concurrently": "^8.0.1",
+        "nodemon": "^2.0.22",
+        "typescript": "^5.0.4"
+    }
+}
