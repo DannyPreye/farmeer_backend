@@ -5,13 +5,14 @@ import validator from "validator";
 import User from "../model/User";
 import { genPassword, issueJWT, validatePassword } from "../lib/utils";
 import sendVerificationToken from "../lib/sendVerificationToken";
+import Token from "../model/Token";
 
 /**
  *  ::::::::::::::::::::::::: USER REGISTRATION CONTROLLER :::::::::::::::::::::::::::::::: 
  * @param req 
  * @param res 
  * @param next 
- * @returns void
+ * @returns void"/" + 
  */
 
 export const registerUsers = async (req: Request, res: Response, next: NextFunction) =>
@@ -63,8 +64,9 @@ export const registerUsers = async (req: Request, res: Response, next: NextFunct
 
             if (saveUser) {
                 const token = saveUser.generateToken();
-                sendVerificationToken(saveUser.email as string, callbackUrl, token.token, saveUser.first_name as string);
+                await sendVerificationToken(saveUser.email as string, callbackUrl, token.token, saveUser.first_name as string);
 
+                const tokenObject = issueJWT(saveUser);
                 return res.status(201).json({
                     success: true,
                     message: "User has been created",
@@ -75,7 +77,9 @@ export const registerUsers = async (req: Request, res: Response, next: NextFunct
                         location: saveUser.location,
                         accountTYpe: saveUser.account_type,
                         phone: saveUser.phone
-                    }
+                    },
+                    token: tokenObject.token,
+                    expiresIn: tokenObject.expiresIn
                 });
             }
 
@@ -143,3 +147,118 @@ export const loginUsers = async (req: Request, res: Response, next: NextFunction
         next(error);
     }
 };
+
+
+/**
+ * :::::::::::::::::::::::::::::: VERIFY USER EMAIL ADDRESS :::::::::::::::::::::::::::::
+ * @param req 
+ * @param res 
+ * @param next 
+ */
+
+export const verifyToken = async (req: Request, res: Response, next: NextFunction) =>
+{
+    const { token } = req.query;
+
+    if (!token) {
+        return res.status(404).json({
+            message: "We were unable to find a user for this token",
+            success: false
+        });
+    }
+
+    try {
+        const getToken = await Token.findOne({ token });
+
+        if (!getToken) {
+            return res.status(404).json({
+                success: false,
+                message: "We were unable to find a valid token. Your token may have expired"
+            });
+        }
+
+        const user = await User.findOne({ _id: getToken.user });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "We are unable to find a user for this token"
+            });
+        }
+
+        // Check if user has already been verified
+        if (user?.isVerified) {
+            return res.status(409).json({
+                success: false,
+                message: "This user has already been verified"
+            });
+        }
+
+        user?.isVerified = true;
+        const save = await user.save();
+
+        if (save) {
+            return res.status(200).json({
+                success: true,
+                message: "User has been successfully verified"
+            });
+        }
+
+
+    } catch (error) {
+        console.log(error);
+
+        res.status(500).json({
+            success: false,
+            message: "Something went wrong"
+        });
+    }
+
+
+};
+
+/**
+ * :::::::::::::::::::::::::::::: RESEND VERIFICATION TOKEN ::::::::::::::::::::::::
+ * @param req 
+ * @param res 
+ * @param next 
+ */
+
+export const resendToken = async (req: Request, res: Response, next: NextFunction) =>
+{
+    const { email, callbackUrl } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        return res.status(404).json({
+            success: false,
+            message: "We are unablt to find a user with that email"
+        });
+    }
+
+    if (user.isVerified) {
+        return res.status(409).json({
+            success: false,
+            message: "User is already verified"
+        });
+    }
+
+    const generateToken = await user.generateToken();
+    const messageReport = await sendVerificationToken(
+        user.email as string,
+        callbackUrl,
+        generateToken.token as string,
+        user.first_name as string
+    );
+
+    if (messageReport) {
+        return res.status(200).json({
+            success: true,
+            message: "Message has been sent"
+        });
+    }
+}
+
+
+
