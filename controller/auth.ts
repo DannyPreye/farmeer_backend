@@ -258,7 +258,108 @@ export const resendToken = async (req: Request, res: Response, next: NextFunctio
             message: "Message has been sent"
         });
     }
-}
+};
 
+
+
+/**
+ * ::::::::::::::::::::::::: RESET PASSWORD TOKEN :::::::::::::::::::::::
+ * @param req 
+ * @param res 
+ * @returns 
+ */
+
+export const resetPasswordToken = async (req: Request, res: Response) =>
+{
+    const { email, callbackUrl } = req.body;
+
+    try {
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(400).json({ error: "We were unable to find a user with that email." });
+        }
+
+        const token = await user.generateResetToken();
+
+
+        const messageReport = await sendResetTokenMail(user.email as string, callbackUrl, token.token, user.first_name as string);
+        if (messageReport) {
+            return res.status(200).json({ message: "A password reset email has been sent to " + user.email + "." });
+        }
+        else {
+            throw new Error("Something went wrong, mail not sent");
+        }
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: "Something went wrong" });
+    }
+
+};
+
+
+/**
+ * ::::::::::::::::::::::::::::::::: RESET PASSWORD ::::::::::::::::::::::::::::::::::
+ * @param req 
+ * @param res 
+ */
+
+export const resetPassword = async (req: Request, res: Response) =>
+{
+    const { confirmPassword, password, token } = req.body;
+
+    try {
+        const findToken = await Token.findOne({ token });
+
+        if (!findToken) {
+            return res.status(404).json({
+                success: false,
+                message: "token not found"
+            });
+        }
+
+        const user = await User.findOne({ _id: findToken.user });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "No user found"
+            });
+        }
+
+        if (confirmPassword === password) {
+            const { hash, salt } = genPassword(password);
+
+            user.hash = hash;
+            user.salt = salt;
+
+            const savedUser = await user.save();
+
+            if (savedUser) {
+                return res.status(200).json({
+                    success: true,
+                    message: "Password has been changed"
+                });
+            }
+
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: "Password and confirm password do not match"
+            });
+        }
+
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Something went wrong"
+        });
+    }
+
+
+
+}
 
 

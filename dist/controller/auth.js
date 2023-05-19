@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resendToken = exports.verifyToken = exports.loginUsers = exports.registerUsers = void 0;
+exports.resetPassword = exports.resetPasswordToken = exports.resendToken = exports.verifyToken = exports.loginUsers = exports.registerUsers = void 0;
 const validator_1 = __importDefault(require("validator"));
 const User_1 = __importDefault(require("../model/User"));
 const utils_1 = require("../lib/utils");
@@ -220,3 +220,80 @@ const resendToken = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.resendToken = resendToken;
+/**
+ * ::::::::::::::::::::::::: RESET PASSWORD TOKEN :::::::::::::::::::::::
+ * @param req
+ * @param res
+ * @returns
+ */
+const resetPasswordToken = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email, callbackUrl } = req.body;
+    try {
+        const user = yield User_1.default.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ error: "We were unable to find a user with that email." });
+        }
+        const token = yield user.generateResetToken();
+        const messageReport = yield sendResetTokenMail(user.email, callbackUrl, token.token, user.first_name);
+        if (messageReport) {
+            return res.status(200).json({ message: "A password reset email has been sent to " + user.email + "." });
+        }
+        else {
+            throw new Error("Something went wrong, mail not sent");
+        }
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: "Something went wrong" });
+    }
+});
+exports.resetPasswordToken = resetPasswordToken;
+/**
+ * ::::::::::::::::::::::::::::::::: RESET PASSWORD ::::::::::::::::::::::::::::::::::
+ * @param req
+ * @param res
+ */
+const resetPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { confirmPassword, password, token } = req.body;
+    try {
+        const findToken = yield Token_1.default.findOne({ token });
+        if (!findToken) {
+            return res.status(404).json({
+                success: false,
+                message: "token not found"
+            });
+        }
+        const user = yield User_1.default.findOne({ _id: findToken.user });
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "No user found"
+            });
+        }
+        if (confirmPassword === password) {
+            const { hash, salt } = (0, utils_1.genPassword)(password);
+            user.hash = hash;
+            user.salt = salt;
+            const savedUser = yield user.save();
+            if (savedUser) {
+                return res.status(200).json({
+                    success: true,
+                    message: "Password has been changed"
+                });
+            }
+        }
+        else {
+            return res.status(400).json({
+                success: false,
+                message: "Password and confirm password do not match"
+            });
+        }
+    }
+    catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Something went wrong"
+        });
+    }
+});
+exports.resetPassword = resetPassword;
