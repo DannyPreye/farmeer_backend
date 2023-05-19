@@ -8,6 +8,6 @@ const category_1 = require("../controller/category");
 const auth_1 = require("../middleware/auth");
 const route = express_1.default.Router();
 // -------------- get all categories ----------------
-route.get("/", auth_1.authMiddleWare, auth_1.isVerified, category_1.getCategories);
-route.post("/create", category_1.postCreateCategory);
+route.get("/", category_1.getCategories);
+route.post("/create", auth_1.authMiddleWare, auth_1.isAdmin, category_1.postCreateCategory);
 exports.default = route;
