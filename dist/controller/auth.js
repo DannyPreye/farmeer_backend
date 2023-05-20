@@ -12,8 +12,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resetPassword = exports.resetPasswordToken = exports.resendToken = exports.verifyToken = exports.loginUsers = exports.registerUsers = void 0;
+exports.resetPassword = exports.resetPasswordToken = exports.resendToken = exports.verifyToken = exports.loginUsers = exports.loginValidator = exports.registerUsers = exports.regValidator = void 0;
 const validator_1 = __importDefault(require("validator"));
+const express_validator_1 = require("express-validator");
 const User_1 = __importDefault(require("../model/User"));
 const utils_1 = require("../lib/utils");
 const sendVerificationToken_1 = __importDefault(require("../lib/sendVerificationToken"));
@@ -25,7 +26,26 @@ const Token_1 = __importDefault(require("../model/Token"));
  * @param next
  * @returns void"/" +
  */
+exports.regValidator = [
+    (0, express_validator_1.body)("first_name").trim(),
+    (0, express_validator_1.body)("last_name").trim(),
+    (0, express_validator_1.body)("state").trim(),
+    (0, express_validator_1.body)("country").trim(),
+    (0, express_validator_1.body)("city").trim(),
+    (0, express_validator_1.body)("email").trim().isEmail(),
+    (0, express_validator_1.body)("password").trim().isStrongPassword(),
+    (0, express_validator_1.body)("accountType").trim().isIn(["farmer", "buyer", "supplier"]),
+    (0, express_validator_1.body)("callbackUrl").isURL()
+];
 const registerUsers = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const validateBody = (0, express_validator_1.validationResult)(req);
+    if (!validateBody.isEmpty()) {
+        return res.status(400).json({
+            success: false,
+            errors: validateBody.array()
+        });
+    }
+    // const valid = validationResult(req)
     const { callbackUrl, first_name, last_name, email, password, phone, accountType, street, country, state, city } = req.body;
     try {
         // Check if the user already exists
@@ -62,7 +82,8 @@ const registerUsers = (req, res, next) => __awaiter(void 0, void 0, void 0, func
             });
             const saveUser = yield newUser.save();
             if (saveUser) {
-                const token = saveUser.generateToken();
+                const token = yield saveUser.generateToken();
+                console.log("token", token);
                 yield (0, sendVerificationToken_1.default)(saveUser.email, callbackUrl, token.token, saveUser.first_name);
                 const tokenObject = (0, utils_1.issueJWT)(saveUser);
                 return res.status(201).json({
@@ -103,8 +124,21 @@ exports.registerUsers = registerUsers;
  * @param next
  * @returns
  */
+exports.loginValidator = [
+    (0, express_validator_1.body)("email").trim().isEmail().withMessage("Email is required"),
+    (0, express_validator_1.body)("password").trim()
+        .isStrongPassword()
+        .withMessage("Password is required and must not be less than 8 characters")
+];
 const loginUsers = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
+    const errors = (0, express_validator_1.validationResult)(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({
+            success: false,
+            errors: errors.array()
+        });
+    }
     try {
         const user = yield User_1.default.findOne({ email });
         if (!user) {

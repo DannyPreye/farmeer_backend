@@ -1,6 +1,7 @@
 import { NextFunction, Response, Request } from "express";
 import passport from "passport";
 import validator from "validator";
+import { body, validationResult } from "express-validator";
 
 import User from "../model/User";
 import { genPassword, issueJWT, validatePassword } from "../lib/utils";
@@ -15,8 +16,30 @@ import Token from "../model/Token";
  * @returns void"/" + 
  */
 
+export const regValidator = [
+    body("first_name").trim(),
+    body("last_name").trim(),
+    body("state").trim(),
+    body("country").trim(),
+    body("city").trim(),
+    body("email").trim().isEmail(),
+    body("password").trim().isStrongPassword(),
+    body("accountType").trim().isIn([ "farmer", "buyer", "supplier" ]),
+    body("callbackUrl").isURL()
+];
+
 export const registerUsers = async (req: Request, res: Response, next: NextFunction) =>
 {
+    const validateBody = validationResult(req);
+
+    if (!validateBody.isEmpty()) {
+        return res.status(400).json({
+            success: false,
+            errors: validateBody.array()
+        });
+    }
+
+    // const valid = validationResult(req)
     const { callbackUrl, first_name, last_name, email, password,
         phone, accountType, street, country, state, city } = req.body;
 
@@ -63,7 +86,9 @@ export const registerUsers = async (req: Request, res: Response, next: NextFunct
             const saveUser = await newUser.save();
 
             if (saveUser) {
-                const token = saveUser.generateToken();
+                const token = await saveUser.generateToken();
+
+                console.log("token", token);
                 await sendVerificationToken(saveUser.email as string, callbackUrl, token.token, saveUser.first_name as string);
 
                 const tokenObject = issueJWT(saveUser);
@@ -111,9 +136,24 @@ export const registerUsers = async (req: Request, res: Response, next: NextFunct
  * @returns 
  */
 
+export const loginValidator = [
+    body("email").trim().isEmail().withMessage("Email is required"),
+    body("password").trim()
+        .isStrongPassword()
+        .withMessage("Password is required and must not be less than 8 characters")
+];
+
 export const loginUsers = async (req: Request, res: Response, next: NextFunction) =>
 {
     const { email, password } = req.body;
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({
+            success: false,
+            errors: errors.array()
+        });
+    }
 
     try {
         const user = await User.findOne({ email });
