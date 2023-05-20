@@ -22,7 +22,8 @@ app.use((0, helmet_1.default)());
 // :::::::::::::::::::::::::::: ROUTES :::::::::::::::::::::::::::
 app.use("/api/v1/auth", routes_1.authRoute);
 app.use("/api/v1/category", routes_1.categoryRoute);
-app.use("api/v1/shop", routes_1.shopRoute);
+app.use("/api/v1/shop", routes_1.shopRoute);
+app.use("/api/v1/like", routes_1.likeRoute);
 app.listen(port, () => {
     console.log("listening at port " + port);
 });

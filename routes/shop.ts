@@ -1,16 +1,17 @@
 import express from "express";
-import { isVerified } from "../middleware/auth";
+import { authMiddleWare, isVerified } from "../middleware/auth";
 import { createShop, createShopValidationRules, getShops, getSingleShop, updateShop } from "../controller/shop";
 
 const router = express.Router();
 
 
-router.post("/", isVerified, createShopValidationRules, createShop);
+router.post("/", authMiddleWare, isVerified, createShopValidationRules, createShop);
+
+router.get("/all", getShops);
 
 router.get("/:id", getSingleShop);
 
-router.get("/shops", getShops);
 
-router.put("/:id", isVerified, updateShop);
+router.put("/:id", authMiddleWare, isVerified, updateShop);
 
 export default router;

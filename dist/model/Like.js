@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -14,6 +23,21 @@ const LikeSchema = new mongoose_1.default.Schema({
         type: mongoose_1.default.Schema.Types.ObjectId,
         required: true,
         refPath: "docModel"
+    },
+    docModel: {
+        type: String,
+        required: true,
+        enum: ["Post", "Product"],
     }
 }, { timestamps: true });
+LikeSchema.post("save", function () {
+    return __awaiter(this, void 0, void 0, function* () {
+        const model = mongoose_1.default.model(this.docModel);
+        const likedDocument = yield model.findById(this.liked);
+        if (likedDocument) {
+            likedDocument.likes.push(this._id);
+            yield likedDocument.save();
+        }
+    });
+});
 exports.default = db_config_1.default.model("Like", LikeSchema);

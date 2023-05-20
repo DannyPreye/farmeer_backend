@@ -53,7 +53,7 @@ const ProductSchema = new mongoose_1.default.Schema({
     likes: [
         {
             type: mongoose_1.default.Schema.Types.ObjectId,
-            ref: "Likes"
+            ref: "Like"
         }
     ],
     comments: [

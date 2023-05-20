@@ -4,7 +4,7 @@ import passport from "passport";
 import cors from "cors";
 import dotenv from "dotenv";
 
-import { authRoute, categoryRoute, shopRoute } from "./routes";
+import { authRoute, categoryRoute, likeRoute, shopRoute } from "./routes";
 
 import "./config/passport.config";
 
@@ -28,7 +28,8 @@ app.use(helment());
 // :::::::::::::::::::::::::::: ROUTES :::::::::::::::::::::::::::
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/category", categoryRoute);
-app.use("api/v1/shop", shopRoute);
+app.use("/api/v1/shop", shopRoute);
+app.use("/api/v1/like", likeRoute);
 
 
 

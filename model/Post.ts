@@ -10,7 +10,7 @@ const PostSchema = new mongoose.Schema({
         type: String,
     },
     media: [ String ],
-    likes: [ { type: mongoose.Schema.Types.ObjectId, ref: "User" } ],
+    likes: [ { type: mongoose.Schema.Types.ObjectId, ref: "Like" } ],
     comments: [ { type: mongoose.Schema.Types.ObjectId, ref: "Comment" } ],
     created_at: {
         type: Date,

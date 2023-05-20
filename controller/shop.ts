@@ -16,8 +16,12 @@ export const createShopValidationRules = [
         .custom((value) => mongoose.Types.ObjectId.isValid(value))
         .withMessage('Valid owner ID is required'),
     body("categories")
-        .notEmpty()
-        .custom((value) => mongoose.Types.ObjectId.isValid(value))
+        .notEmpty().isArray()
+        .custom((value) =>
+        {
+            return Array.isArray(value) &&
+                value.every(value => mongoose.Types.ObjectId.isValid(value));
+        })
         .withMessage("Valid category ID is required")
     // Add validation for other fields if needed
 ];
@@ -113,14 +117,15 @@ export const getSingleShop = async (req: Request, res: Response) =>
             last_name,
             profile_image,
             _id
-        `).populate({
-            path: "products",
-            options: {
-                limit: PER_PAGE,
-                skip: (parseInt(page as string) - 1) * PER_PAGE,
-                sort: { createdAt: -1 }
-            }
-        }).exec();
+        `);
+        //     .populate({
+        //     path: "products",
+        //     options: {
+        //         limit: PER_PAGE,
+        //         skip: (parseInt(page as string) - 1) * PER_PAGE,
+        //         sort: { createdAt: -1 }
+        //     }
+        // }).exec();
 
         // Check if the shop exists
         if (!shop) {
