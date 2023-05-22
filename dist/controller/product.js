@@ -60,7 +60,6 @@ exports.createProductValidation = [
 ];
 const createProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const errors = (0, express_validator_1.validationResult)(req);
-    console.log(mainImage, getImages);
     if (!errors.isEmpty()) {
         return res.status(400).json({
             success: false,
@@ -76,7 +75,6 @@ const createProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 message: "The shop could not be found"
             });
         }
-        console.log("hllo js");
         const mainImage = req.files["featureImage"][0].path;
         const getImages = req.files["productImages"];
         const productImages = getImages.map((image) => image.path);

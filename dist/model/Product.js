@@ -87,8 +87,7 @@ ProductSchema.post("save", function () {
     return __awaiter(this, void 0, void 0, function* () {
         const shop_Id = this.shop;
         const shop = yield Shop_1.default.findOne({ _id: shop_Id });
-        const products = [...new Set([...((shop === null || shop === void 0 ? void 0 : shop.products) || []), this.id])];
-        !(shop === null || shop === void 0 ? void 0 : shop.products.includes(this.id)) && (shop === null || shop === void 0 ? void 0 : shop.products.includes(this.id));
+        !(shop === null || shop === void 0 ? void 0 : shop.products.includes(this.id)) && (shop === null || shop === void 0 ? void 0 : shop.products.push(this.id));
         yield (shop === null || shop === void 0 ? void 0 : shop.save());
     });
 });

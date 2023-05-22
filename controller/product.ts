@@ -65,7 +65,7 @@ export const createProduct = async (req: Request, res: Response) =>
     const errors = validationResult(req);
 
 
-    console.log(mainImage, getImages);
+
     if (!errors.isEmpty()) {
         return res.status(400).json({
             success: false,
@@ -94,7 +94,6 @@ export const createProduct = async (req: Request, res: Response) =>
             });
         }
 
-        console.log("hllo js");
         const mainImage = req.files[ "featureImage" ][ 0 ].path;
         const getImages = req.files[ "productImages" ];
 

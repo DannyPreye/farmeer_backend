@@ -84,9 +84,7 @@ ProductSchema.post("save", async function ()
     const shop_Id = this.shop;
     const shop = await Shop.findOne({ _id: shop_Id });
 
-    const products = [ ...new Set([ ...(shop?.products || []), this.id ]) ];
-
-    !shop?.products.includes(this.id) && shop?.products.includes(this.id);
+    !shop?.products.includes(this.id) && shop?.products.push(this.id);
 
     await shop?.save();
 
