@@ -1,6 +1,9 @@
 import mongoose from "mongoose";
-import dbconnection from "../config/db.config";
 import slugify from "slugify";
+
+import dbconnection from "../config/db.config";
+import Shop from "./Shop";
+
 
 const ProductSchema = new mongoose.Schema({
     name: {
@@ -45,16 +48,18 @@ const ProductSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
-    seller: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-    },
+
     likes: [
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Like"
         }
     ],
+    shop: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Shop",
+        require: true
+    },
     comments: [
         {
             type: mongoose.Schema.Types.ObjectId,
@@ -73,5 +78,18 @@ ProductSchema.pre("save", function (next)
     next();
 });
 
+// Store the newly created products to the shop
+ProductSchema.post("save", async function ()
+{
+    const shop_Id = this.shop;
+    const shop = await Shop.findOne({ _id: shop_Id });
+
+    const products = [ ...new Set([ ...(shop?.products || []), this.id ]) ];
+
+    !shop?.products.includes(this.id) && shop?.products.includes(this.id);
+
+    await shop?.save();
+
+});
 
 export default dbconnection.model("Product", ProductSchema);

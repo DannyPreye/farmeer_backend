@@ -24,6 +24,7 @@ app.use("/api/v1/auth", routes_1.authRoute);
 app.use("/api/v1/category", routes_1.categoryRoute);
 app.use("/api/v1/shop", routes_1.shopRoute);
 app.use("/api/v1/like", routes_1.likeRoute);
+app.use("/api/v1/product", routes_1.productRoute);
 app.listen(port, () => {
     console.log("listening at port " + port);
 });

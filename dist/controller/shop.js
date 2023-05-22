@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateShop = exports.getShops = exports.getSingleShop = exports.createShop = exports.createShopValidationRules = void 0;
+exports.getAllProductsInShop = exports.updateShop = exports.getShops = exports.getSingleShop = exports.createShop = exports.createShopValidationRules = void 0;
 const Shop_1 = __importDefault(require("../model/Shop"));
 const express_validator_1 = require("express-validator");
 const mongoose_1 = __importDefault(require("mongoose"));
@@ -194,9 +194,12 @@ exports.getShops = getShops;
  * @returns
  */
 const updateShop = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
     try {
         // Extract the shop ID from the request parameters
         const { id } = req.params;
+        const coverImage = ((_a = req.file) === null || _a === void 0 ? void 0 : _a.path) ? (_b = req.file) === null || _b === void 0 ? void 0 : _b.path
+            : "https://static.vecteezy.com/system/resources/previews/008/133/641/non_2x/shopping-cart-icon-design-templates-free-vector.jpg";
         // Check if the ID is a valid MongoDB ObjectId
         if (!mongoose_1.default.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ error: 'Invalid shop ID' });
@@ -208,7 +211,7 @@ const updateShop = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         existingShop.setUpdate({});
         const _id = id;
         const shop = yield Shop_1.default.findByIdAndUpdate(_id, {
-            $set: req.body, // Update the shop data with the request body
+            $set: Object.assign(Object.assign({}, req.body), { coverImage }), // Update the shop data with the request body
         }, { new: true } // Return the updated shop as the response
         );
         return res.json({
@@ -222,3 +225,30 @@ const updateShop = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.updateShop = updateShop;
+const getAllProductsInShop = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id, page } = req.params;
+        const shop = yield Shop_1.default.findById(id).populate({
+            path: "products",
+            options: {
+                page: parseInt(page),
+                limit: PER_PAGE,
+            },
+        });
+        if (!shop) {
+            return res.status(404).json({
+                message: "Shop not found",
+                success: false
+            });
+        }
+        const products = shop.products;
+        res.status(200).json({
+            success: true,
+            products
+        });
+    }
+    catch (error) {
+        console.error("Error retrieving products in shop:", error);
+    }
+});
+exports.getAllProductsInShop = getAllProductsInShop;

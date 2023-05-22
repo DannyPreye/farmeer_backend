@@ -218,6 +218,8 @@ export const updateShop = async (req: Request, res: Response) =>
     try {
         // Extract the shop ID from the request parameters
         const { id } = req.params;
+        const coverImage = req.file?.path ? req.file?.path
+            : "https://static.vecteezy.com/system/resources/previews/008/133/641/non_2x/shopping-cart-icon-design-templates-free-vector.jpg";
 
 
 
@@ -238,7 +240,7 @@ export const updateShop = async (req: Request, res: Response) =>
         const shop = await Shop.findByIdAndUpdate(
             _id,
             {
-                $set: req.body, // Update the shop data with the request body
+                $set: { ...req.body, coverImage }, // Update the shop data with the request body
             },
             { new: true } // Return the updated shop as the response
         );
@@ -255,4 +257,40 @@ export const updateShop = async (req: Request, res: Response) =>
         console.error('Error updating shop:', error);
         return res.status(500).json({ error: 'Server error' });
     }
+};
+
+
+export const getAllProductsInShop = async (req: Request, res: Response) =>
+{
+    try {
+        const { id, page } = req.params;
+
+        const shop = await Shop.findById(id).populate({
+            path: "products",
+            options: {
+                page: parseInt(page),
+                limit: PER_PAGE,
+            },
+        });
+
+        if (!shop) {
+            return res.status(404).json({
+                message: "Shop not found",
+                success: false
+            });
+        }
+
+        const products = shop.products;
+
+        res.status(200).json({
+            success: true,
+            products
+        });
+    } catch (error) {
+        console.error("Error retrieving products in shop:", error);
+    }
+
+
+
+
 };
