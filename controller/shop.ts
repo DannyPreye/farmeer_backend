@@ -233,7 +233,6 @@ export const updateShop = async (req: Request, res: Response) =>
             return res.status(404).json({ error: 'Shop not found' });
         }
 
-        existingShop.setUpdate({});
         const _id = id;
 
 
@@ -244,8 +243,6 @@ export const updateShop = async (req: Request, res: Response) =>
             },
             { new: true } // Return the updated shop as the response
         );
-
-
 
 
         return res.json({

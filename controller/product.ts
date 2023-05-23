@@ -239,3 +239,35 @@ export const getSingleProduct = async (req: Request, res: Response) =>
         product
     });
 };
+
+export const updateProducts = async (req: Request, res: Response) =>
+{
+    try {
+        const { id } = req.params;
+
+        const existingProduct = await Product.findOne({ _id: id });
+
+        if (!existingProduct) {
+            return res.status(400).json({
+                message: "Product not found",
+                success: false
+            });
+        }
+
+        const _id = id;
+
+        const product = await Product.findByIdAndDelete(
+            _id,
+            {
+                $set: { ...req.body, },
+            },
+        );
+        return res.status(200).json({
+            success: true,
+            product
+        });
+    } catch (error) {
+        console.log(error);
+
+    }
+};

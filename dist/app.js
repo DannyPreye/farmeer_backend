@@ -8,12 +8,14 @@ const helmet_1 = __importDefault(require("helmet"));
 const passport_1 = __importDefault(require("passport"));
 const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const generateKeyPair_1 = require("./generateKeyPair");
 const routes_1 = require("./routes");
 require("./config/passport.config");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const port = process.env.PORT || 5000;
 app.use(passport_1.default.initialize());
+(0, generateKeyPair_1.genKeyPair)();
 // :::::::::::::::::::::::::::: MIDDLEWARES ::::::::::::::::::::::
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));

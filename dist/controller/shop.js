@@ -208,7 +208,6 @@ const updateShop = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         if (!existingShop) {
             return res.status(404).json({ error: 'Shop not found' });
         }
-        existingShop.setUpdate({});
         const _id = id;
         const shop = yield Shop_1.default.findByIdAndUpdate(_id, {
             $set: Object.assign(Object.assign({}, req.body), { coverImage }), // Update the shop data with the request body

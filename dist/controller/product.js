@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getSingleProduct = exports.getByName = exports.getProductsByCategory = exports.createProduct = exports.createProductValidation = void 0;
+exports.updateProducts = exports.getSingleProduct = exports.getByName = exports.getProductsByCategory = exports.createProduct = exports.createProductValidation = void 0;
 const express_validator_1 = require("express-validator");
 const Product_1 = __importDefault(require("../model/Product"));
 const mongoose_1 = __importDefault(require("mongoose"));
@@ -186,3 +186,27 @@ const getSingleProduct = (req, res) => __awaiter(void 0, void 0, void 0, functio
     });
 });
 exports.getSingleProduct = getSingleProduct;
+const updateProducts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const existingProduct = yield Product_1.default.findOne({ _id: id });
+        if (!existingProduct) {
+            return res.status(400).json({
+                message: "Product not found",
+                success: false
+            });
+        }
+        const _id = id;
+        const product = yield Product_1.default.findByIdAndDelete(_id, {
+            $set: Object.assign({}, req.body),
+        });
+        return res.status(200).json({
+            success: true,
+            product
+        });
+    }
+    catch (error) {
+        console.log(error);
+    }
+});
+exports.updateProducts = updateProducts;
