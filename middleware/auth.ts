@@ -12,29 +12,30 @@ export function authMiddleWare(req: Request, res: Response, next: NextFunction)
 {
     const tokenParts = req.headers?.authorization?.split(" ") as string[];
 
-
-    if (tokenParts[ 0 ] == "Bearer" && tokenParts[ 1 ].match(/^[\w-]+\.[\w-]+\.[\w-]+$/) !== null) {
-
-
-
-        try {
-            const verification = jsonwebtoken.verify(tokenParts[ 1 ], PUB_KEY, {
-                algorithms: [ "RS256" ]
-            });
-
-            req.jwt = verification;
+    if (tokenParts) {
+        if (tokenParts[ 0 ] == "Bearer" && tokenParts[ 1 ].match(/^[\w-]+\.[\w-]+\.[\w-]+$/) !== null) {
 
 
 
-            next();
+            try {
+                const verification = jsonwebtoken.verify(tokenParts[ 1 ], PUB_KEY, {
+                    algorithms: [ "RS256" ]
+                });
 
-        } catch (error) {
-            return res.status(401).json({
-                success: false,
-                message: "You're not authorized to view this resource"
-            });
+                req.jwt = verification;
+
+
+
+                next();
+
+            } catch (error) {
+                return res.status(401).json({
+                    success: false,
+                    message: "You're not authorized to view this resource"
+                });
+            }
+
         }
-
     }
 }
 

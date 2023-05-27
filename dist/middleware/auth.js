@@ -35,19 +35,21 @@ const PUB_KEY = fs.readFileSync(pathToKey, 'utf8');
 function authMiddleWare(req, res, next) {
     var _a, _b;
     const tokenParts = (_b = (_a = req.headers) === null || _a === void 0 ? void 0 : _a.authorization) === null || _b === void 0 ? void 0 : _b.split(" ");
-    if (tokenParts[0] == "Bearer" && tokenParts[1].match(/^[\w-]+\.[\w-]+\.[\w-]+$/) !== null) {
-        try {
-            const verification = jsonwebtoken_1.default.verify(tokenParts[1], PUB_KEY, {
-                algorithms: ["RS256"]
-            });
-            req.jwt = verification;
-            next();
-        }
-        catch (error) {
-            return res.status(401).json({
-                success: false,
-                message: "You're not authorized to view this resource"
-            });
+    if (tokenParts) {
+        if (tokenParts[0] == "Bearer" && tokenParts[1].match(/^[\w-]+\.[\w-]+\.[\w-]+$/) !== null) {
+            try {
+                const verification = jsonwebtoken_1.default.verify(tokenParts[1], PUB_KEY, {
+                    algorithms: ["RS256"]
+                });
+                req.jwt = verification;
+                next();
+            }
+            catch (error) {
+                return res.status(401).json({
+                    success: false,
+                    message: "You're not authorized to view this resource"
+                });
+            }
         }
     }
 }
