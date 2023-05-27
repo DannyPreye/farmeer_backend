@@ -10,7 +10,7 @@ const PUB_KEY = fs.readFileSync(pathToKey, 'utf8');
 
 export function authMiddleWare(req: Request, res: Response, next: NextFunction)
 {
-    const tokenParts = req.headers?.authorization?.split(" ");
+    const tokenParts = req.headers?.authorization?.split(" ") as string[];
 
 
     if (tokenParts[ 0 ] == "Bearer" && tokenParts[ 1 ].match(/^[\w-]+\.[\w-]+\.[\w-]+$/) !== null) {
