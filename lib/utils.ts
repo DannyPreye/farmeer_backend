@@ -45,9 +45,7 @@ export function issueJWT(user: any)
     const _id = user._id;
     const role = user.account_type;
     const verified = user.isVerified;
-    const profile_image = user.profile_image;
-    const last_name = user.last_name;
-    const first_name = user.first_name;
+
 
     const expiresIn = "1d";
 
@@ -56,9 +54,6 @@ export function issueJWT(user: any)
         iat: Date.now(),
         role,
         verified,
-        last_name,
-        first_name,
-        profile_image,
         expiresIn
     };
 

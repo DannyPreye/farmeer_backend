@@ -3,3 +3,4 @@ export { default as categoryRoute } from "./category";
 export { default as shopRoute } from "./shop";
 export { default as likeRoute } from "./like";
 export { default as productRoute } from "./products";
+export { default as userRoute } from "./user";

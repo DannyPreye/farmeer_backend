@@ -23,7 +23,9 @@ export const regValidator = [
     body("country").trim(),
     body("city").trim(),
     body("email").trim().isEmail(),
-    body("password").trim().isStrongPassword(),
+    body("password").trim()
+        .isStrongPassword()
+    ,
     body("accountType").trim().isIn([ "farmer", "buyer", "supplier" ]),
     body("callbackUrl").isURL()
 ];
@@ -139,8 +141,6 @@ export const registerUsers = async (req: Request, res: Response, next: NextFunct
 export const loginValidator = [
     body("email").trim().isEmail().withMessage("Email is required"),
     body("password").trim()
-        .isStrongPassword()
-        .withMessage("Password is required and must not be less than 8 characters")
 ];
 
 export const loginUsers = async (req: Request, res: Response, next: NextFunction) =>

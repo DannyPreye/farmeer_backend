@@ -33,7 +33,8 @@ exports.regValidator = [
     (0, express_validator_1.body)("country").trim(),
     (0, express_validator_1.body)("city").trim(),
     (0, express_validator_1.body)("email").trim().isEmail(),
-    (0, express_validator_1.body)("password").trim().isStrongPassword(),
+    (0, express_validator_1.body)("password").trim()
+        .isStrongPassword(),
     (0, express_validator_1.body)("accountType").trim().isIn(["farmer", "buyer", "supplier"]),
     (0, express_validator_1.body)("callbackUrl").isURL()
 ];
@@ -127,8 +128,6 @@ exports.registerUsers = registerUsers;
 exports.loginValidator = [
     (0, express_validator_1.body)("email").trim().isEmail().withMessage("Email is required"),
     (0, express_validator_1.body)("password").trim()
-        .isStrongPassword()
-        .withMessage("Password is required and must not be less than 8 characters")
 ];
 const loginUsers = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
