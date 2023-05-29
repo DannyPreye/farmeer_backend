@@ -50,18 +50,18 @@ function issueJWT(user) {
     const _id = user._id;
     const role = user.account_type;
     const verified = user.isVerified;
-    const expiresIn = "1d";
+    const currentTimestamp = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+    const expirationTimestamp = currentTimestamp + 24 * 60 * 60; // Add expiration time in seconds
     const payload = {
         sub: _id,
         iat: Date.now(),
+        exp: expirationTimestamp,
         role,
         verified,
-        expiresIn
     };
-    const signedToken = jsonwebtoken_1.default.sign(payload, PRIV_KEY, { expiresIn, algorithm: "RS256" });
+    const signedToken = jsonwebtoken_1.default.sign(payload, PRIV_KEY, { algorithm: "RS256" });
     return {
         token: "Bearer " + signedToken,
-        expiresIn: expiresIn
     };
 }
 exports.issueJWT = issueJWT;

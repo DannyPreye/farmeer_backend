@@ -3,6 +3,7 @@ import cloudinary from "../config/cloudinary";
 import jsonwebtoken from "jsonwebtoken";
 import fs from "fs";
 import path from "path";
+import exp from "constants";
 
 
 const pathTokey = path.join(__dirname, '..', 'id_rsa_priv.pem');
@@ -47,21 +48,24 @@ export function issueJWT(user: any)
     const verified = user.isVerified;
 
 
-    const expiresIn = "1d";
+    const currentTimestamp = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+    const expirationTimestamp = currentTimestamp + 24 * 60 * 60; // Add expiration time in seconds
+
 
     const payload = {
         sub: _id,
         iat: Date.now(),
+        exp: expirationTimestamp,
         role,
         verified,
-        expiresIn
     };
 
-    const signedToken = jsonwebtoken.sign(payload, PRIV_KEY, { expiresIn, algorithm: "RS256" });
+    const signedToken = jsonwebtoken.sign(payload, PRIV_KEY,
+        { algorithm: "RS256" },);
 
     return {
         token: "Bearer " + signedToken,
-        expiresIn: expiresIn
+
     };
 }
 
